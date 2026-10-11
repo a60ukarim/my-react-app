@@ -2,17 +2,28 @@
     min-height: 100vh;
     min-height: 100svh;
     background-color: #f8f9fa;
-    padding-top: 60px;
 }
 .dashboard-content {
     margin-right: 250px;
-    padding: clamp(20px, 4vw, 36px);
+    padding: clamp(24px, 4vw, 40px);
     min-width: 0;
 }
-.dashboard-title { color: #333; margin: 0 0 12px; font-size: clamp(25px, 4vw, 36px); }
-.dashboard-text { color: #666; font-size: clamp(15px, 2vw, 16px); line-height: 1.6; }
-@media (max-width: 768px) {
-    .dashboard-container { padding-top: 60px; }
-    .dashboard-content { margin-right: 0; padding: 24px 16px; }
+.dashboard-title {
+    color: #333;
+    margin: 0 0 16px;
+    font-size: clamp(25px, 4vw, 36px);
+    line-height: 1.2;
 }
-@media (max-width: 380px) { .dashboard-content { padding: 20px 12px; } }
+.dashboard-text {
+    color: #666;
+    font-size: clamp(16px, 2vw, 18px);
+    line-height: 1.7;
+    max-width: 760px;
+}
+@media (max-width: 768px) {
+    .dashboard-content { margin-right: 0; padding: 24px 18px; }
+    .dashboard-title { font-size: clamp(24px, 5vw, 32px); }
+}
+@media (max-width: 380px) {
+    .dashboard-content { padding: 22px 14px; }
+}

@@ -2,20 +2,60 @@
     width: 250px;
     background-color: #343a40;
     color: #fff;
-    height: calc(100vh - 60px);
-    height: calc(100svh - 60px);
+    height: calc(100vh - 64px);
+    height: calc(100svh - 64px);
     position: fixed;
-    top: 60px;
+    top: 64px;
     right: 0;
-    padding: 20px;
+    padding: 20px 14px;
     box-sizing: border-box;
     overflow-y: auto;
 }
-.sidebar-menu { list-style: none; padding: 0; margin: 0; }
-.sidebar-item { padding: 12px 10px; border-bottom: 1px solid #405057; cursor: pointer; border-radius: 4px; transition: background-color .2s; }
-.sidebar-item:hover { background-color: #405057; }
+.sidebar-menu {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.sidebar-item {
+    list-style: none !important;
+    padding: 12px 14px;
+    border: 0;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: background-color .2s;
+    white-space: nowrap;
+}
+.sidebar-item:hover { background-color: #46505a; }
 @media (max-width: 768px) {
-    .sidebar { position: relative; top: auto; right: auto; width: 100%; height: auto; padding: 8px 12px; overflow: visible; }
-    .sidebar-menu { display: flex; flex-wrap: wrap; gap: 6px; }
-    .sidebar-item { flex: 1 1 auto; text-align: center; padding: 10px 12px; border: 0; }
+    .sidebar {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        height: auto;
+        padding: 8px 12px;
+        overflow: visible;
+    }
+    .sidebar-menu {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-around;
+        align-items: center;
+        gap: 6px;
+    }
+    .sidebar-item {
+        flex: 1 1 0;
+        min-width: 0;
+        text-align: center;
+        padding: 11px 6px;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+}
+@media (max-width: 360px) {
+    .sidebar-item { font-size: 13px; padding-inline: 3px; }
 }

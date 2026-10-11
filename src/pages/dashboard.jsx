@@ -7,14 +7,14 @@ export default function Dashboard() {
     return (
         <div className="dashboard-container">
             <Navbar />
-            <div className="dashboard-layout">
-                <Sidebar />
-                <main className="dashboard-content">
+            <Sidebar />
+            <main className="dashboard-content">
+                <div className="dashboard-inner">
                     <div className="welcome-label">OVERVIEW</div>
                     <h1 className="dashboard-title">Welcome To The Dashboard</h1>
                     <p className="dashboard-text">Here you can easily view Data and Statistics for an Application</p>
-                </main>
-            </div>
+                </div>
+            </main>
         </div>
     );
 }

@@ -1,46 +1,16 @@
-.dashboard-container {
-    min-height: 100vh;
-    min-height: 100svh;
-    background: #f6f7fb;
-}
-.dashboard-layout {
+ .dashboard-container { min-height: 100vh; min-height: 100svh; background: #f6f7fb; }
+.dashboard-content {
+    box-sizing: border-box;
+    margin-right: 250px;
     min-height: calc(100vh - 72px);
     min-height: calc(100svh - 72px);
+    padding: clamp(30px, 4vw, 56px) clamp(24px, 4vw, 56px);
 }
-.dashboard-content {
-    width: min(100% - 64px, 1180px);
-    box-sizing: border-box;
-    margin: 0 auto 0 0;
-    padding: clamp(30px, 5vw, 58px) 0;
-    margin-right: 250px;
-}
-.welcome-label {
-    margin-bottom: 12px;
-    color: #6366f1;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1.7px;
-}
-.dashboard-title {
-    color: #202938;
-    margin: 0 0 14px;
-    font-size: clamp(25px, 3.5vw, 36px);
-    line-height: 1.2;
-    letter-spacing: -0.8px;
-}
-.dashboard-text {
-    margin: 0;
-    color: #687386;
-    font-size: clamp(16px, 2vw, 18px);
-    line-height: 1.75;
-    max-width: 760px;
-}
+.dashboard-inner { width: 100%; max-width: 1100px; margin: 0 auto; }
+.welcome-label { margin: 0 0 12px; color: #6366f1; font-size: 12px; font-weight: 800; letter-spacing: 1.7px; }
+.dashboard-title { color: #202938; margin: 0 0 14px; font-size: clamp(25px, 3.2vw, 36px); line-height: 1.25; letter-spacing: -.8px; }
+.dashboard-text { margin: 0; color: #687386; font-size: clamp(16px, 1.6vw, 18px); line-height: 1.75; max-width: 760px; }
 @media (max-width: 768px) {
-    .dashboard-layout { min-height: auto; }
-    .dashboard-content {
-        width: auto;
-        margin: 0;
-        padding: 30px 20px;
-    }
-    .dashboard-title { line-height: 1.25; }
+    .dashboard-content { margin-right: 0; min-height: auto; padding: 28px 20px 40px; }
+    .dashboard-inner { max-width: none; }
 }

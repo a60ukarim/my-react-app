@@ -1,0 +1,33 @@
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.dashboard-title {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.dashboard-text {
+    color: #666;
+    font-size: 16px;
+}
+
+/* --- Media Query */
+@media (max-width:768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .dashboard-content {
+        padding: 15px;
+    }
+}

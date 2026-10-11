@@ -92,3 +92,5 @@
 @media (max-width: 340px) {
     .navbar-link { font-size: 12px; gap: 3px; }
 }
+/* Navigation items live in the sidebar, so keep the header clean. */
+.navbar-links { display: none; }

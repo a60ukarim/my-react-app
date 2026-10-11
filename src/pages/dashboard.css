@@ -6,7 +6,7 @@
 .dashboard-content {
     width: min(100% - 64px, 1180px);
     box-sizing: border-box;
-    margin: 0 auto;
+    margin-left: 250px;
     padding: clamp(30px, 5vw, 58px) 0;
 }
 .welcome-label {

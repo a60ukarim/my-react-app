@@ -1,13 +1,11 @@
 import React from 'react';
 import Navbar from '../components/navbar';
-import Sidebar from '../components/sidebar'
 import './dashboard.css';
 
 export default function Dashboard() {
     return (
         <div className="dashboard-container">
             <Navbar />
-            <Sidebar />
             <main className="dashboard-content">
                 <div className="welcome-label">OVERVIEW</div>
                 <h1 className="dashboard-title">Welcome To The Dashboard</h1>

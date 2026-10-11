@@ -5,19 +5,15 @@
     padding-top: 60px;
 }
 .dashboard-content {
-    margin-left: 250px;
-    padding: clamp(30px, 5vw, 58px) 40px;
+    margin-right: 250px;
+    padding: clamp(20px, 4vw, 36px);
     min-width: 0;
-    width: calc(100% - 250px);
-    box-sizing: border-box;
 }
-
 .dashboard-title { 
     color: #333; 
     margin: 0 0 12px; 
     font-size: clamp(25px, 4vw, 36px); 
 }
-
 .dashboard-text { 
     color: #666; 
     font-size: clamp(15px, 2vw, 16px); 
@@ -31,9 +27,8 @@
     }
     .dashboard-content 
     { 
-        margin-left: 0;
-        width: 100%;
-        padding: 30px 20px; 
+        margin-right: 0; 
+        padding: 24px 16px; 
     }
 }
 @media (max-width: 380px) { 

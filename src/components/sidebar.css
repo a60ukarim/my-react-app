@@ -3,27 +3,19 @@
     background-color: #343a40;
     color: #fff;
     height: calc(100vh - 60px);
+    height: calc(100svh - 60px);
     position: fixed;
     top: 60px;
     right: 0;
     padding: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
-
-.sidebar-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar-item {
-    padding: 12px 10px;
-    border-bottom: 1px solid #405057;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.sidebar-item:hover {
-    background-color: #405057;
+.sidebar-menu { list-style: none; padding: 0; margin: 0; }
+.sidebar-item { padding: 12px 10px; border-bottom: 1px solid #405057; cursor: pointer; border-radius: 4px; transition: background-color .2s; }
+.sidebar-item:hover { background-color: #405057; }
+@media (max-width: 768px) {
+    .sidebar { position: relative; top: auto; right: auto; width: 100%; height: auto; padding: 8px 12px; overflow: visible; }
+    .sidebar-menu { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sidebar-item { flex: 1 1 auto; text-align: center; padding: 10px 12px; border: 0; }
 }

@@ -1,18 +1,49 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { StoreContext, readSaved } from './store';
 import Login from './pages/login';
 import Signup from './pages/signup';
 import Dashboard from './pages/dashboard';
+import Navbar from './components/navbar';
+
+import { Shop, Favorites, Cart, Orders, Profile, Settings } from './pages/store-pages';
+import './App.css';
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  const [user, setUser] = useState(() => readSaved('user', null));
+  const [cart, setCart] = useState(() => readSaved('cart', []));
+  const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
+  const [orders, setOrders] = useState(() => readSaved('orders', []));
+  const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
+  const save = (key, value, setter) => { localStorage.setItem(`sole-${key}`, JSON.stringify(value)); setter(value); };
+  const value = {
+    user, cart, favorites, orders, settings,
+    login: (profile) => save('user', profile, setUser),
+    logout: () => { localStorage.removeItem('sole-user'); setUser(null); },
+    updateUser: (profile) => save('user', profile, setUser),
+    updateCart: (items) => save('cart', items, setCart),
+    toggleFavorite: (id) => save('favorites', favorites.includes(id) ? favorites.filter(item => item !== id) : [...favorites, id], setFavorites),
+    updateSettings: (next) => save('settings', next, setSettings),
+    addToCart: (product, size) => {
+      const match = cart.find(item => item.id === product.id && item.size === size);
+      save('cart', match ? cart.map(item => item === match ? { ...item, quantity: item.quantity + 1 } : item) : [...cart, { ...product, size, quantity: 1 }], setCart);
+    },
+    checkout: () => {
+      if (!cart.length) return;
+      const order = { id: `SOLE-${Date.now()}`, date: new Date().toISOString(), items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
+      save('orders', [order, ...orders], setOrders); save('cart', [], setCart);
+    },
+  };
+  return <StoreContext.Provider value={value}><BrowserRouter><div className={settings.dark ? 'app dark' : 'app'}>
+    <Routes>
+      <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <Signup />} />
+      <Route element={user ? <><Navbar /><main className="main-content"><Outlet /></main></> : <Navigate to="/login" replace />}>
+        <Route path="/dashboard" element={<Dashboard />} /><Route path="/shop" element={<Shop />} />
+        <Route path="/favorites" element={<Favorites />} /><Route path="/cart" element={<Cart />} />
+        <Route path="/orders" element={<Orders />} /><Route path="/profile" element={<Profile />} /><Route path="/settings" element={<Settings />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes></div></BrowserRouter></StoreContext.Provider>;
 }

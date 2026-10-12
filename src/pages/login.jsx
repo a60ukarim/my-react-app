@@ -1,54 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './login.css';
-
-export default function login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate('');
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        navigate('/dashboard');
-    };
-
-    return (
-        <div className="login-container">
-            <div className="login-card">
-                <h2 className="login-title">Login</h2>
-                <form onSubmit={handleSubmit} className="login-form">
-                    <div className="form-group">
-                        <label className="form-label">Email</label>
-                        <input
-                            type="email"
-                            className="form-input"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="example@mail.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-
-                    <button type="submit" className="login-btn">Enter</button>
-                </form>
-
-                <p className="login-footer">
-                    Don't Have An Account? <Link to="/signup" className="login-link">Create New Account</Link>
-                </p>
-            </div>
-        </div>
-    );
+import { readSaved, useStore } from '../store';
+export default function Login() {
+ const { login } = useStore(); const navigate = useNavigate(); const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
+ const submit = event => { event.preventDefault(); const profile = readSaved('profile', null); login(profile?.email === email.trim() ? profile : { name: email.split('@')[0], email: email.trim(), phone: '', address: '' }); navigate('/dashboard'); };
+ return <div className="auth"><section className="auth-story"><Link className="brand" to="/login">SOLE<span>SHOE STUDIO</span></Link><p className="eyebrow">FIND YOUR STRIDE</p><h1>A good day starts<br />with a great pair.</h1><p>Your collection. Your style. Your next step.</p><span className="auth-art">↗</span></section><section className="auth-form"><p className="eyebrow">WELCOME BACK</p><h2>Step inside.</h2><p>Sign in to explore your shoe collection.</p><form onSubmit={submit}><label>Email<input type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></label><label>Password<input type="password" autoComplete="current-password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} placeholder="At least 6 characters" /></label><button className="primary">Login →</button></form><p>New here? <Link to="/signup">Create an account</Link></p><small>Demo project: use any email and a password of 6+ characters. No server authentication or real payments.</small></section></div>;
 }

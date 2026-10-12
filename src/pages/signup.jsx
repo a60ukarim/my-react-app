@@ -1,64 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './signup.css';
-
+import { useStore } from '../store';
 export default function Signup() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
-
-    const handleSignUp = (e) => {
-        e.preventDefault();
-        if (name && email && password) {
-            alert('Account Created Successfully! Please Login');
-            navigate('/login');
-        } else {
-            alert('Please Fill In All Fields')
-        }
-    };
-
-    return (
-        <div className="signup-container">
-            <form onSubmit={handleSignUp} className="signup-form">
-                <h2 className="signup-title">Create New Acoount</h2>
-
-                <div className="form-group">
-                    <label>Full Name:</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
-                </div>
-                
-                <div className="form-group">
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-
-                <div className="form-group form-group-mb">
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-
-                <button type="submit" className="signup-btn">Register</button>
-
-                <p className="signup-link-text">
-                    Already Have An Account? <Link to="/login" className="signup-link">Login</Link>
-                </p>
-            </form>
-        </div>
-    );
+ const { login } = useStore(); const navigate = useNavigate(); const [form, setForm] = useState({ name: '', email: '', password: '' });
+ const submit = event => { event.preventDefault(); const profile = { name: form.name.trim(), email: form.email.trim(), phone: '', address: '' }; if (!profile.name) return; localStorage.setItem('sole-profile', JSON.stringify(profile)); login(profile); navigate('/dashboard'); };
+ return <div className="auth"><section className="auth-story"><Link className="brand" to="/login">SOLE<span>SHOE STUDIO</span></Link><p className="eyebrow">A FRESH START</p><h1>Your style.<br />Your own space.</h1><p>Save your favorite shoes and build your rotation.</p><span className="auth-art">↗</span></section><section className="auth-form"><p className="eyebrow">JOIN THE CLUB</p><h2>Create your account.</h2><form onSubmit={submit}>{[['name', 'Full name', 'text'], ['email', 'Email', 'email'], ['password', 'Password', 'password']].map(([key, label, type]) => <label key={key}>{label}<input type={type} required minLength={key === 'password' ? 6 : 1} autoComplete={key === 'password' ? 'new-password' : key} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} /></label>)}<button className="primary">Create account →</button></form><p>Already a member? <Link to="/login">Login</Link></p><small>Local demo: your profile is saved in this browser. Passwords are never saved.</small></section></div>;
 }

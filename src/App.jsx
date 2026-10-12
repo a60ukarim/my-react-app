@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { StoreContext, readSaved } from './store';
 import Login from './pages/login';
 import Signup from './pages/signup';
 import Dashboard from './pages/dashboard';
 import Navbar from './components/navbar';
+import Toast from './components/toast';
 
 import { Shop, Favorites, Cart, Orders, Profile, Settings } from './pages/store-pages';
 import './App.css';
 
 export default function App() {
+  const [notification, setNotification] = useState(null);
+  const notificationId = useRef(0);
+  const notify = message => setNotification({ id: ++notificationId.current, message });
+  const dismissToast = useCallback(() => setNotification(null), []);
   const [user, setUser] = useState(() => readSaved('user', null));
   const [cart, setCart] = useState(() => readSaved('cart', []));
   const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
@@ -17,13 +22,13 @@ export default function App() {
   const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
   const save = (key, value, setter) => { localStorage.setItem(`sole-${key}`, JSON.stringify(value)); setter(value); };
   const value = {
-    user, cart, favorites, orders, settings,
+    user, cart, favorites, orders, settings, notify,
     login: (profile) => save('user', profile, setUser),
-    logout: () => { localStorage.removeItem('sole-user'); setUser(null); },
+    logout: () => { localStorage.removeItem('sole-user'); setUser(null); setNotification(null); },
     updateUser: (profile) => save('user', profile, setUser),
     updateCart: (items) => save('cart', items, setCart),
-    toggleFavorite: (id) => save('favorites', favorites.includes(id) ? favorites.filter(item => item !== id) : [...favorites, id], setFavorites),
-    updateSettings: (next) => save('settings', next, setSettings),
+    toggleFavorite: (id) => { const removing = favorites.includes(id); save('favorites', removing ? favorites.filter(item => item !== id) : [...favorites, id], setFavorites); if (!removing) notify('Shoe saved to favorites!'); },
+    updateSettings: (next) => { save('settings', next, setSettings); notify('Preferences saved successfully!'); },
     addToCart: (product, size) => {
       const match = cart.find(item => item.id === product.id && item.size === size);
       save('cart', match ? cart.map(item => item === match ? { ...item, quantity: item.quantity + 1 } : item) : [...cart, { ...product, size, quantity: 1 }], setCart);
@@ -31,7 +36,7 @@ export default function App() {
     checkout: () => {
       if (!cart.length) return;
       const order = { id: `SOLE-${Date.now()}`, date: new Date().toISOString(), items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
-      save('orders', [order, ...orders], setOrders); save('cart', [], setCart);
+      save('orders', [order, ...orders], setOrders); save('cart', [], setCart); notify('Order placed successfully!');
     },
   };
   return <StoreContext.Provider value={value}><BrowserRouter><div className={settings.dark ? 'app dark' : 'app'}>
@@ -45,5 +50,5 @@ export default function App() {
         <Route path="/orders" element={<Orders />} /><Route path="/profile" element={<Profile />} /><Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes></div></BrowserRouter></StoreContext.Provider>;
+    </Routes>{user && notification && <Toast key={notification.id} notification={notification} onDismiss={dismissToast} />}</div></BrowserRouter></StoreContext.Provider>;
 }

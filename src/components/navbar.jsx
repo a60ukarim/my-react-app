@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 export default function Navbar() {
-  const { logout, cart } = useStore();
+  const { logout, cart, openBag } = useStore();
   const [menu, setMenu] = useState(null);
   const location = useLocation();
   const opened = menu?.path === location.pathname ? menu.name : null;
@@ -22,7 +22,7 @@ export default function Navbar() {
         </nav>}
       </div><Link className="brand" to="/dashboard">SOLE<span>SHOE STUDIO</span></Link></div>
     <div className="top-actions">
-      <Link className="cart-link" to="/cart">Bag <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span></Link>
+      <button className="cart-link" onClick={() => { setMenu(null); openBag(); }}>Bag <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span></button>
 
       <div className="dropdown"><button aria-label="Profile" aria-expanded={opened === 'profile'} onClick={() => toggle('profile')}><span className="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></svg></span></button>
         {opened === 'profile' && <nav className="dropdown-panel" aria-label="Profile menu"><Link to="/profile" onClick={() => setMenu(null)}>Profile</Link><Link to="/settings" onClick={() => setMenu(null)}>Settings</Link><button className="logout" onClick={logout}>Logout ↗</button></nav>}

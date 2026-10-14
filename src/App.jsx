@@ -6,6 +6,8 @@ import Signup from './pages/signup';
 import Dashboard from './pages/dashboard';
 import Navbar from './components/navbar';
 import Toast from './components/toast';
+import BagDrawer from './components/bag-drawer';
+import { initialInventory, reconcileInventory } from './inventory';
 
 import { Shop, Favorites, Cart, Orders, Profile, Settings } from './pages/store-pages';
 import './App.css';
@@ -20,18 +22,29 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
   const [orders, setOrders] = useState(() => readSaved('orders', []));
   const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
+  const [inventory, setInventory] = useState(() => readSaved('inventory', initialInventory(cart, orders)));
+  const [bagOpen, setBagOpen] = useState(false);
   const save = (key, value, setter) => { localStorage.setItem(`sole-${key}`, JSON.stringify(value)); setter(value); };
+  const updateCart = items => {
+    const nextInventory = reconcileInventory(inventory, cart, items);
+    if (!nextInventory) { notify('Not enough stock available.'); return false; }
+    save('inventory', nextInventory, setInventory);
+    save('cart', items, setCart);
+    return true;
+  };
   const value = {
-    user, cart, favorites, orders, settings, notify,
+    user, cart, favorites, orders, settings, notify, notification, dismissToast, inventory, openBag: () => setBagOpen(true), closeBag: () => setBagOpen(false),
     login: (profile) => save('user', profile, setUser),
-    logout: () => { localStorage.removeItem('sole-user'); setUser(null); setNotification(null); },
+    logout: () => { localStorage.removeItem('sole-user'); setUser(null); setNotification(null); setBagOpen(false); },
     updateUser: (profile) => save('user', profile, setUser),
-    updateCart: (items) => save('cart', items, setCart),
+    updateCart,
     toggleFavorite: (id) => { const removing = favorites.includes(id); save('favorites', removing ? favorites.filter(item => item !== id) : [...favorites, id], setFavorites); if (!removing) notify('Shoe saved to favorites!'); },
     updateSettings: (next) => { save('settings', next, setSettings); notify('Preferences saved successfully!'); },
-    addToCart: (product, size) => {
+    addToCart: (product, size, quantity = 1) => {
       const match = cart.find(item => item.id === product.id && item.size === size);
-      save('cart', match ? cart.map(item => item === match ? { ...item, quantity: item.quantity + 1 } : item) : [...cart, { ...product, size, quantity: 1 }], setCart);
+      const added = updateCart(match ? cart.map(item => item === match ? { ...item, quantity: item.quantity + quantity } : item) : [...cart, { ...product, size, quantity }]);
+      if (added) notify('Added to bag successfully!');
+      return added;
     },
     checkout: () => {
       if (!cart.length) return;
@@ -50,5 +63,5 @@ export default function App() {
         <Route path="/orders" element={<Orders />} /><Route path="/profile" element={<Profile />} /><Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>{user && notification && <Toast key={notification.id} notification={notification} onDismiss={dismissToast} />}</div></BrowserRouter></StoreContext.Provider>;
+    </Routes>{user && <BagDrawer open={bagOpen} onClose={() => setBagOpen(false)} />}{user && !bagOpen && notification && <Toast key={notification.id} notification={notification} onDismiss={dismissToast} />}</div></BrowserRouter></StoreContext.Provider>;
 }

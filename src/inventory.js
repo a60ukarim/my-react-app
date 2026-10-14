@@ -29,3 +29,9 @@ export function removeOne(cart, id, size) {
     ? item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : []
     : [item]);
 }
+
+export function stockLabel(available, cart, id, size) {
+  const reserved = cart.filter(item => item.id === id && String(item.size) === String(size)).reduce((sum, item) => sum + item.quantity, 0);
+  if (available > 0) return `${available} pairs left in EU ${size}`;
+  return reserved > 0 ? 'Currently unavailable' : 'Sold out';
+}

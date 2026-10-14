@@ -21,12 +21,12 @@ export function numberOrders(orders, legacyCustomer) {
   }
   return orders.map(order => numbered.get(order.id));
 }
-export function nextInvoice(orders, email, date) {
+export function nextInvoice(orders, email, date, accountId) {
   const day = invoiceDay(date); const owner = customerKey(email);
   return {
     invoiceDate: day, customerEmail: owner,
     companyInvoiceNumber: Math.max(0, ...orders.filter(order => order.invoiceDate === day).map(order => order.companyInvoiceNumber)) + 1,
-    customerInvoiceNumber: Math.max(0, ...orders.filter(order => order.customerEmail === owner).map(order => order.customerInvoiceNumber)) + 1,
+    customerInvoiceNumber: Math.max(0, ...orders.filter(order => accountId && order.customerId ? order.customerId === accountId : order.customerEmail === owner).map(order => order.customerInvoiceNumber)) + 1,
   };
 }
 export function searchOrders(orders, query) {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { readSaved, useStore } from '../store';
+import { useStore } from '../store';
 export default function Login() {
  const { login } = useStore(); const navigate = useNavigate(); const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
- const submit = event => { event.preventDefault(); const profile = readSaved('profile', null); login(profile?.email === email.trim() ? profile : { name: email.split('@')[0], email: email.trim(), phone: '', address: '' }); navigate('/dashboard'); };
+ const submit = event => { event.preventDefault(); login({ name: email.trim().split('@')[0], email: email.trim(), phone: '', address: '' }); navigate('/dashboard'); };
  return <div className="auth"><section className="auth-story"><Link className="brand" to="/login">SOLE<span>SHOE STUDIO</span></Link><p className="eyebrow">FIND YOUR STRIDE</p><h1>A good day starts<br />with a great pair.</h1><p>Your collection. Your style. Your next step.</p><span className="auth-art">↗</span></section><section className="auth-form"><p className="eyebrow">WELCOME BACK</p><h2>Step inside.</h2><p>Sign in to explore your shoe collection.</p><form onSubmit={submit}><label>Email<input type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></label><label>Password<input type="password" autoComplete="current-password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} placeholder="At least 6 characters" /></label><button className="primary">Login →</button></form><p>New here? <Link to="/signup">Create an account</Link></p><small>Demo project: use any email and a password of 6+ characters. No server authentication or real payments.</small></section></div>;
 }

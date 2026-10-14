@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useStore } from '../store';
 import { products } from '../products';
-import { customerKey, invoiceReference, searchOrders } from '../invoices';
+import { belongsToAccount } from '../accounts';
+import { invoiceReference, searchOrders } from '../invoices';
 import { removeOne } from '../inventory';
 export function ShoeArt({ color }) { return <svg viewBox="0 0 320 180" role="img" aria-label="Shoe illustration"><ellipse cx="164" cy="148" rx="125" ry="9" fill="#000" opacity=".08"/><path d="M38 114 61 51Q67 44 78 51L131 86 172 70 200 98 266 115Q287 121 287 140H35Z" fill={color} /><path d="m64 59 26 55 49 11 36-31-3-24-41 16-53-35Z" fill="#ffffff" opacity=".3"/><path d="M34 133Q148 147 289 134V151Q150 165 32 148Z" fill="#fffaf0" stroke="#353b32" strokeWidth="2"/><path d="m123 86 31 7m-37 2 27 9m-34 0 25 9" stroke="#fffaf0" strokeWidth="5" strokeLinecap="round"/></svg>; }
 export function ProductCard({ product }) {
@@ -45,7 +46,7 @@ export function Cart({ drawer = false, onClose = () => {} }) {
 }
 export function Orders() {
  const { orders, user } = useStore(); const [query, setQuery] = useState('');
- const ownOrders = orders.filter(order => order.customerEmail === customerKey(user.email));
+ const ownOrders = orders.filter(order => belongsToAccount(order, user));
  const shown = searchOrders(ownOrders, query);
  return <><Heading label="YOUR JOURNEY" title="Your orders." text="Find a purchase by product name or invoice number." />
    {ownOrders.length ? <>
@@ -62,7 +63,7 @@ export function Orders() {
 export function Profile() {
  const { user, updateUser, notify } = useStore(); const [form, setForm] = useState(user);
  const changed = ['name', 'email', 'phone', 'address'].some(key => (form[key] || '').trim() !== (user[key] || '').trim());
- return <><Heading label="YOUR ACCOUNT" title="Make it yours." text="Update your personal details and delivery address." /><form className="panel detail-form" onSubmit={e => { e.preventDefault(); if (!changed || !form.name.trim()) return; const next = { ...form, name: form.name.trim(), email: form.email.trim() }; updateUser(next); localStorage.setItem('sole-profile', JSON.stringify(next)); notify('Profile saved successfully!'); }}><div className="profile-intro"><span className="avatar large">{user.name.slice(0, 1).toUpperCase()}</span><div><h2>{user.name}</h2><p>{user.email}</p></div></div>{[['name', 'Full name', 'text'], ['email', 'Email', 'email'], ['phone', 'Phone', 'tel'], ['address', 'Delivery address', 'text']].map(([key, label, type]) => <label key={key}>{label}<input type={type} required={key === 'name' || key === 'email'} value={form[key] || ''} onChange={e => { setForm({ ...form, [key]: e.target.value }); }} /></label>)}<button className="primary" disabled={!changed}>Save profile</button></form></>;
+ return <><Heading label="YOUR ACCOUNT" title="Make it yours." text="Update your personal details and delivery address." /><form className="panel detail-form" onSubmit={e => { e.preventDefault(); if (!changed || !form.name.trim()) return; const next = { ...form, name: form.name.trim(), email: form.email.trim() }; if (updateUser(next)) { setForm(next); notify('Profile saved successfully!'); } }}><div className="profile-intro"><span className="avatar large">{user.name.slice(0, 1).toUpperCase()}</span><div><h2>{user.name}</h2><p>{user.email}</p></div></div>{[['name', 'Full name', 'text'], ['email', 'Email', 'email'], ['phone', 'Phone', 'tel'], ['address', 'Delivery address', 'text']].map(([key, label, type]) => <label key={key}>{label}<input type={type} required={key === 'name' || key === 'email'} value={form[key] || ''} onChange={e => { setForm({ ...form, [key]: e.target.value }); }} /></label>)}<button className="primary" disabled={!changed}>Save profile</button></form></>;
 }
 export function Settings() {
  const { settings, updateSettings } = useStore();

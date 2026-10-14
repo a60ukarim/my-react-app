@@ -1,27 +1,28 @@
 import { useCallback, useRef, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+
 import { StoreContext, readSaved } from './store';
-import Login from './pages/login';
-import Signup from './pages/signup';
-import Dashboard from './pages/dashboard';
-import Navbar from './components/navbar';
-import Toast from './components/toast';
-import BagDrawer from './components/bag-drawer';
+
 import { numberOrders, nextInvoice } from './invoices';
+import { attachOrderAccounts, belongsToAccount, loadAccounts, rememberAccount, savedAccount } from './accounts';
 import { initialInventory, reconcileInventory } from './inventory';
 
-import { Shop, Favorites, Cart, Orders, Profile, Settings } from './pages/store-pages';
+import AppView from './components/app-view';
+
 import './App.css';
 
 export default function App() {
+  return <LocalStore><AppView /></LocalStore>;
+}
+
+function LocalStore({ children }) {
   const [notification, setNotification] = useState(null);
   const notificationId = useRef(0);
   const notify = message => setNotification({ id: ++notificationId.current, message });
   const dismissToast = useCallback(() => setNotification(null), []);
-  const [user, setUser] = useState(() => readSaved('user', null));
+  const [user, setUser] = useState(() => { const session = readSaved('user', null); return session ? savedAccount(localStorage, session.email) || session : null; });
   const [cart, setCart] = useState(() => readSaved('cart', []));
   const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
-  const [orders, setOrders] = useState(() => numberOrders(readSaved('orders', []), user?.email || readSaved('profile', null)?.email));
+  const [orders, setOrders] = useState(() => attachOrderAccounts(numberOrders(readSaved('orders', []), user?.email || readSaved('profile', null)?.email), loadAccounts(localStorage)));
   const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
   const [inventory, setInventory] = useState(() => readSaved('inventory-by-size', initialInventory(cart, orders)));
   const [bagOpen, setBagOpen] = useState(false);
@@ -34,10 +35,23 @@ export default function App() {
     return true;
   };
   const value = {
-    user, cart, favorites, orders, settings, notify, notification, dismissToast, inventory, openBag: () => setBagOpen(true), closeBag: () => setBagOpen(false),
-    login: (profile) => save('user', profile, setUser),
+    user, cart, favorites, orders, settings, notify, notification, dismissToast, inventory, bagOpen, openBag: () => setBagOpen(true), closeBag: () => setBagOpen(false),
+    login: (profile) => {
+      const saved = savedAccount(localStorage, profile.email);
+      const account = rememberAccount(localStorage, saved || profile);
+      setUser(account);
+      const restoredOrders = attachOrderAccounts(numberOrders(orders.map(order => order.customerEmail === 'legacy' ? { ...order, customerEmail: account.email } : order), account.email), loadAccounts(localStorage));
+      save('orders', restoredOrders, setOrders); return { signedIn: true };
+    },
+    signup: profile => { value.login(profile); return { signedIn: true }; },
     logout: () => { localStorage.removeItem('sole-user'); setUser(null); setNotification(null); setBagOpen(false); },
-    updateUser: (profile) => save('user', profile, setUser),
+    updateUser: (profile) => {
+      const next = rememberAccount(localStorage, { ...profile, accountId: user.accountId }, user.email);
+      if (!next) { notify('This email already belongs to another local account.'); return false; }
+      save('orders', orders.map(order => belongsToAccount(order, user) ? { ...order, customerId: next.accountId } : order), setOrders);
+      setUser(next);
+      return true;
+    },
     updateCart,
     toggleFavorite: (id) => { const removing = favorites.includes(id); save('favorites', removing ? favorites.filter(item => item !== id) : [...favorites, id], setFavorites); if (!removing) notify('Shoe saved to favorites!'); },
     updateSettings: (next) => { save('settings', next, setSettings); notify('Preferences saved successfully!'); },
@@ -50,20 +64,9 @@ export default function App() {
     checkout: () => {
       if (!cart.length) return;
       const date = new Date().toISOString();
-      const order = { ...nextInvoice(orders, user.email, date), id: `SOLE-${Date.now()}`, date, items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
-      save('orders', [order, ...orders], setOrders); save('cart', [], setCart); notify('Order placed successfully!');
+      const order = { ...nextInvoice(orders, user.email, date, user.accountId), customerId: user.accountId, customer: { name: user.name, email: user.email, phone: user.phone, address: user.address }, id: `SOLE-${Date.now()}`, date, items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
+      save('orders', [order, ...orders], setOrders); save('cart', [], setCart); notify('Order placed successfully!'); return true;
     },
   };
-  return <StoreContext.Provider value={value}><BrowserRouter><div className={settings.dark ? 'app dark' : 'app'}>
-    <Routes>
-      <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
-      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <Signup />} />
-      <Route element={user ? <><Navbar /><main className="main-content"><Outlet /></main></> : <Navigate to="/login" replace />}>
-        <Route path="/dashboard" element={<Dashboard />} /><Route path="/shop" element={<Shop />} />
-        <Route path="/favorites" element={<Favorites />} /><Route path="/cart" element={<Cart />} />
-        <Route path="/orders" element={<Orders />} /><Route path="/profile" element={<Profile />} /><Route path="/settings" element={<Settings />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>{user && <BagDrawer open={bagOpen} onClose={() => setBagOpen(false)} />}{user && !bagOpen && notification && <Toast key={notification.id} notification={notification} onDismiss={dismissToast} />}</div></BrowserRouter></StoreContext.Provider>;
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

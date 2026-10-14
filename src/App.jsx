@@ -7,6 +7,7 @@ import Dashboard from './pages/dashboard';
 import Navbar from './components/navbar';
 import Toast from './components/toast';
 import BagDrawer from './components/bag-drawer';
+import { numberOrders, nextInvoice } from './invoices';
 import { initialInventory, reconcileInventory } from './inventory';
 
 import { Shop, Favorites, Cart, Orders, Profile, Settings } from './pages/store-pages';
@@ -20,7 +21,7 @@ export default function App() {
   const [user, setUser] = useState(() => readSaved('user', null));
   const [cart, setCart] = useState(() => readSaved('cart', []));
   const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
-  const [orders, setOrders] = useState(() => readSaved('orders', []));
+  const [orders, setOrders] = useState(() => numberOrders(readSaved('orders', []), user?.email || readSaved('profile', null)?.email));
   const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
   const [inventory, setInventory] = useState(() => readSaved('inventory-by-size', initialInventory(cart, orders)));
   const [bagOpen, setBagOpen] = useState(false);
@@ -48,7 +49,8 @@ export default function App() {
     },
     checkout: () => {
       if (!cart.length) return;
-      const order = { id: `SOLE-${Date.now()}`, date: new Date().toISOString(), items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
+      const date = new Date().toISOString();
+      const order = { ...nextInvoice(orders, user.email, date), id: `SOLE-${Date.now()}`, date, items: cart, total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) };
       save('orders', [order, ...orders], setOrders); save('cart', [], setCart); notify('Order placed successfully!');
     },
   };

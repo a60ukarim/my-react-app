@@ -19,3 +19,4 @@
 
 
 .compact-size-picker{flex:1;min-width:135px}.product-actions .compact-size-picker select{width:100%;padding:10px;font-size:12px}.product-actions .secondary{min-height:38px}
+.bag-quantity{min-width:24px;text-align:center;font-weight:700;font-size:14px}.quantity-plus:disabled{opacity:.4;cursor:not-allowed;background:var(--bg)}.bag-stock{display:block;margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5}.bag-item-actions .remove-product{flex-basis:100%}

@@ -22,13 +22,13 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => readSaved('favorites', []));
   const [orders, setOrders] = useState(() => readSaved('orders', []));
   const [settings, setSettings] = useState(() => readSaved('settings', { dark: false, notifications: true }));
-  const [inventory, setInventory] = useState(() => readSaved('inventory', initialInventory(cart, orders)));
+  const [inventory, setInventory] = useState(() => readSaved('inventory-by-size', initialInventory(cart, orders)));
   const [bagOpen, setBagOpen] = useState(false);
   const save = (key, value, setter) => { localStorage.setItem(`sole-${key}`, JSON.stringify(value)); setter(value); };
   const updateCart = items => {
     const nextInventory = reconcileInventory(inventory, cart, items);
     if (!nextInventory) { notify('Not enough stock available.'); return false; }
-    save('inventory', nextInventory, setInventory);
+    save('inventory-by-size', nextInventory, setInventory);
     save('cart', items, setCart);
     return true;
   };
